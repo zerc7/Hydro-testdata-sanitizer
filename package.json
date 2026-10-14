@@ -1,9 +1,8 @@
 {
-    "name": "@hydrooj/clean-testdata",
+    "name": "hydro-testdata-sanitizer",
     "version": "0.1.0",
-    "description": "Check and normalize problem testdata (BOM / CRLF) for domain root users",
+    "description": "Check and normalize Hydro problem testdata (BOM / CRLF / CR) for domain root users",
     "main": "index.ts",
-    "repository": "https://github.com/hydro-dev/Hydro.git",
     "license": "AGPL-3.0-or-later",
     "preferUnplugged": true
 }

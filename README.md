@@ -1,4 +1,4 @@
-# clean-testdata
+# Hydro-testdata-sanitizer
 
 Hydro 插件：批量检查与规范化题目测试数据。
 
@@ -7,7 +7,7 @@ Hydro 插件：批量检查与规范化题目测试数据。
 
 ## 功能
 
-* 状态：`Accepted`（正常）、`有问题`（存在 BOM 头 / CRLF / 单独的 CR）、`未检查`、`无测试数据`
+* 状态：`Accepted`（正常）、`Wrong`（存在 BOM 头 / CRLF / 单独的 CR）、`Unchecked`、`No testdata`
 * 标记出有问题的**具体文件**与问题类型、数量
 * 展示出题人、测试数据数量与总大小、题目评测类型（传统题 / SPJ / 交互题 / 通信题 / 提交答案题 / 客观题 / 远端评测题）
 * 操作：
@@ -15,6 +15,16 @@ Hydro 插件：批量检查与规范化题目测试数据。
   * **修改**：把 UTF-8 BOM 去掉、把 CRLF / CR 统一成 LF，同样有逐测试点进度条
 * 批量操作（全部测试 / 全部修改）作用于**当前页**的题目，可随时「停止」
 * 结果写入操作日志（oplog，`clean-testdata.fix`），并保存检查记录以便下次打开页面直接看到状态
+
+## 有什么用
+
+Hydro 5.0.0 / UI 4.58.0 已优化 judge 对 `\r` 的处理。即使不使用本插件，judge 在评测时也可以自适应部分换行差异。
+
+本插件仍然有实际用途：
+
+* 将题目导出到其他 OJ 前，统一测试数据格式，减少目标 OJ 对换行符和 BOM 的兼容性差异；
+* 在题库层面主动检查并清洗测试数据，定位具体文件、编码、BOM、CRLF 或单独的 `\r`；
+* 将数据规范化结果保存为检查记录，方便域 root 用户持续维护题库质量。
 
 ## 数据安全
 
@@ -41,13 +51,7 @@ Hydro 插件：批量检查与规范化题目测试数据。
 ## 安装
 
 ```bash
-# 1. 让 yarn 链接工作区内的插件（plugins/* 已在根 package.json 的 workspaces 中）
-yarn install
 
-# 2. 注册插件
-yarn hydrooj addon add @hydrooj/clean-testdata
-
-# 3. 重启 Hydro
 ```
 
 插件目录结构：
