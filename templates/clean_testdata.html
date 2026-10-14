@@ -1,0 +1,180 @@
+{% extends "layout/basic.html" %}
+{% import "components/problem.html" as problem with context %}
+{% import "components/paginator.html" as paginator with context %}
+{% import "components/nothing.html" as nothing with context %}
+{% block content %}
+{{ set(UiContext, 'cleanTestdata', payload) }}
+<style>
+  .clean-testdata-table { table-layout: fixed; }
+  .clean-testdata-table th, .clean-testdata-table td { vertical-align: top; }
+  .clean-testdata-table .col--problem { width: 27%; }
+  .clean-testdata-table .col--owner { width: 13%; }
+  .clean-testdata-table .col--type { width: 14%; }
+  .clean-testdata-table .col--testdata { width: 12%; text-align: center; }
+  .clean-testdata-table .col--status { width: 14%; }
+  .clean-testdata-intro { color: #222; }
+
+  .clean-testdata-dialog { display: none; position: fixed; inset: 0; z-index: 1000; align-items: center; justify-content: center; background: rgba(16,22,26,.45); }
+  .clean-testdata-dialog .dialog__content { width: min(680px, 92vw); max-height: 80vh; background: #fff; border: 1px solid #d8dee4; box-shadow: 0 8px 30px rgba(0,0,0,.25); padding: 24px; overflow: auto; }
+  .clean-testdata-dialog .dialog__action { text-align: right; margin-top: 16px; }
+  .clean-testdata-log { margin: 0; padding-left: 18px; max-height: 320px; overflow: auto; font-family: var(--code-font-family); font-size: 12px; }
+  .clean-testdata-log li { margin: 2px 0; }
+  .clean-testdata-detail-table { width: 100%; table-layout: fixed; }
+  .clean-testdata-detail-table th, .clean-testdata-detail-table td { padding: 8px 10px; vertical-align: top; }
+  .clean-testdata-detail-table .col--file { width: 42%; }
+  .clean-testdata-detail-table .col--encoding { width: 23%; }
+  .clean-testdata-detail-table .col--state { width: 35%; }
+</style>
+<div class="row page--clean-testdata">
+  <div class="medium-12 columns">
+    <div class="section">
+      <div class="section__header">
+        <h1 class="section__title">{{ _('Clean Testdata') }}</h1>
+      </div>
+      <div class="section__body">
+        <div class="typo supplementary clean-testdata-intro">
+          <p>{{ _('Clean testdata: check and normalize the newline style (LF only) and the BOM header of problem testdata.') }}</p>
+          <p>{{ _('Only domain root can see and use this tool. It never deletes testdata: binary files and UTF-16 encoded files are reported but never modified.') }}</p>
+          <p name="clean-testdata-scope">{{ _('clean_testdata.scope').format(rows.length, totalProblems, totalMatched) }}</p>
+          <p name="clean-testdata-stat">{{ _('clean_testdata.scan.stat').format(stats.total, stats.accepted, stats.broken, stats.unchecked, stats.empty) }}</p>
+          {% if truncated %}
+            <blockquote class="note"><p>{{ _('clean_testdata.truncated').format(scanLimit) }}</p></blockquote>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <form method="get">
+      <div class="section">
+        <div class="section__header">
+          <h1 class="section__title">{{ _('Filter') }}</h1>
+          <div class="section__tools">
+            <button type="submit" class="primary button"><span class="icon icon-filter"></span> {{ _('Filter') }}</button>
+            <a href="{{ url('clean_testdata') }}" class="button">{{ _('Reset') }}</a>
+          </div>
+        </div>
+        <div class="section__body">
+          <div class="row">
+            <div class="medium-4 columns">
+              <label>
+                {{ _('By Problem') }}
+                <input name="q" type="text" class="textbox" value="{{ q }}" autocomplete="off" data-autofocus>
+              </label>
+            </div>
+            <div class="medium-4 columns">
+              <label>
+                {{ _('Data Status') }}
+              </label>
+              <select class="compact select" name="status">
+                <option value="all" {% if status == 'all' %}selected{% endif %}>{{ _('clean_testdata.status.all') }}</option>
+                <option value="accepted" {% if status == 'accepted' %}selected{% endif %}>{{ _('clean_testdata.status.accepted') }}</option>
+                <option value="broken" {% if status == 'broken' %}selected{% endif %}>{{ _('clean_testdata.status.broken') }}</option>
+                <option value="unchecked" {% if status == 'unchecked' %}selected{% endif %}>{{ _('clean_testdata.status.unchecked') }}</option>
+                <option value="empty" {% if status == 'empty' %}selected{% endif %}>{{ _('clean_testdata.status.empty') }}</option>
+              </select>
+            </div>
+            <div class="medium-4 columns">
+              <label>
+                {{ _('Problem Type') }}
+              </label>
+              <select class="compact select" name="type">
+                <option value="all" {% if type == 'all' %}selected{% endif %}>{{ _('clean_testdata.status.all') }}</option>
+                <option value="default" {% if type == 'default' %}selected{% endif %}>{{ _('problem_type.default') }}</option>
+                <option value="spj" {% if type == 'spj' %}selected{% endif %}>SPJ</option>
+                <option value="interactive" {% if type == 'interactive' %}selected{% endif %}>{{ _('problem_type.interactive') }}</option>
+                <option value="communication" {% if type == 'communication' %}selected{% endif %}>{{ _('problem_type.communication') }}</option>
+                <option value="submit_answer" {% if type == 'submit_answer' %}selected{% endif %}>{{ _('problem_type.submit_answer') }}</option>
+                <option value="objective" {% if type == 'objective' %}selected{% endif %}>{{ _('problem_type.objective') }}</option>
+                <option value="remote_judge" {% if type == 'remote_judge' %}selected{% endif %}>{{ _('problem_type.remote_judge') }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+    <div class="section">
+      <div class="section__header">
+        <h1 class="section__title">{{ _('Testdata Status') }}</h1>
+        <div class="section__tools">
+          <label class="compact checkbox" style="margin-right: 8px;">
+            <input type="checkbox" name="clean-testdata-backup" {% if backupDefault %}checked{% endif %} class="checkbox">{{ _('Backup before modify') }}
+          </label>
+          <button type="button" class="button" name="clean-testdata-check-all">
+            <span class="icon icon-search"></span> {{ _('Check All on this page') }}
+          </button>
+          <button type="button" class="primary button" name="clean-testdata-fix-all">
+            <span class="icon icon-wrench"></span> {{ _('Fix All on this page') }}
+          </button>
+          <button type="button" class="button" name="clean-testdata-stop" style="display: none;">{{ _('Stop') }}</button>
+        </div>
+      </div>
+      <div class="section__body no-padding">
+      {% if not rows.length %}
+        {{ nothing.render('Oh, there are no problems that match the filter!') }}
+      {% else %}
+        {{ paginator.render(page, pageCount, position='top', add_qs=qs) }}
+        <table class="data-table clean-testdata-table">
+          <colgroup>
+            <col class="col--status">
+            <col class="col--problem">
+            <col class="col--owner">
+            <col class="col--type">
+            <col class="col--testdata">
+          </colgroup>
+          <thead>
+            <tr>
+              <th class="col--status record-status--border">{{ _('Status') }}</th>
+              <th class="col--problem">{{ _('Problem') }}</th>
+              <th class="col--owner">{{ _('Owner') }}</th>
+              <th class="col--type">{{ _('Problem Type') }}</th>
+              <th class="col--testdata">{{ _('Testdata Count') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+          {%- for row in rows -%}
+            {% set statusClass = 'ignored' %}
+            {% if row.status == 'accepted' %}{% set statusClass = 'pass' %}
+            {% elif row.status == 'broken' %}{% set statusClass = 'fail' %}
+            {% elif row.status == 'unchecked' %}{% set statusClass = 'pending' %}{% endif %}
+            <tr data-clean-testdata-pid="{{ row.docId }}">
+              <td class="col--status record-status--border {{ statusClass }} clean-testdata-status-cell" data-status="{{ row.status }}">
+                <div class="col--status__text">
+                  <span class="icon record-status--icon {{ statusClass }}"></span>
+                  <a href="javascript:;" class="clean-testdata-view record-status--text {{ statusClass }}" data-pid="{{ row.docId }}"><span>{{ _('clean_testdata.status.' + row.status) }}</span></a>
+                </div>
+              </td>
+              <td class="col--problem col--problem-name">
+                <a href="javascript:;" class="link text-maroon lighter" name="clean-testdata-check" data-pid="{{ row.docId }}"><span class="icon icon-search"></span> {{ _('Check') }}</a>
+                <a href="javascript:;" class="link text-maroon lighter" name="clean-testdata-fix" data-pid="{{ row.docId }}"><span class="icon icon-wrench"></span> {{ _('Fix') }}</a>
+                 | 
+                <a href="{{ url('problem_detail', pid=row.docId) }}"><b>{{ row.pid }}</b>&nbsp;&nbsp;{{ row.title }}</a>
+                {% if row.hidden %}<span class="text-orange">({{ _('Hidden') }})</span>{% endif %}
+              </td>
+              <td class="col--owner">
+                <a href="{{ url('user_detail', uid=row.owner) }}">{{ row.ownerName }}</a>
+              </td>
+              <td class="col--type">{{ _(row.typeText) }}{% if row.spj %} / SPJ{% endif %}</td>
+              <td class="col--testdata">{{ row.fileCount }} / {{ size(row.totalSize) }}</td>
+            </tr>
+          {%- endfor -%}
+          </tbody>
+        </table>
+        {{ paginator.render(page, pageCount, add_qs=qs) }}
+      {% endif %}
+      </div>
+    </div>
+    <div class="section clean-testdata-log-block">
+      <div class="section__header"><h1 class="section__title">{{ _('Operation Log') }}</h1></div>
+      <div class="section__body" name="clean-testdata-log"><ul class="clean-testdata-log" name="clean-testdata-log-list"></ul></div>
+    </div>
+  </div>
+</div>
+<div class="dialog withBg clean-testdata-dialog" name="clean-testdata-detail-dialog">
+  <div class="dialog__content" data-dialog-content>
+    <h2>{{ _('Data Status') }}</h2>
+    <div name="clean-testdata-detail-body"></div>
+    <div class="dialog__action">
+      <a href="javascript:;" class="link" name="clean-testdata-detail-close">{{ _('Close') }}</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,68 @@
+__langname: 简体中文
+clean_testdata: 清洗测试数据
+Clean Testdata: 清洗测试数据
+'Clean testdata: check and normalize the newline style (LF only) and the BOM header of problem testdata.': 清洗测试数据：检查并统一题目测试数据的换行符（只保留 LF）与 BOM 头。
+'Only domain root can see and use this tool. It never deletes testdata: binary files and UTF-16 encoded files are reported but never modified.': 仅域 root 可见可用。本工具不会删除任何测试数据：二进制文件与 UTF-16 编码文件只会被标记，不会被修改。
+'This tool does not delete any testdata, and it only rewrites a file when a BOM header, CRLF or a lone CR is detected inside a text file.': 本工具不会删除测试数据，且只有在文本文件中检测到 BOM 头、CRLF 或单独的 CR 时才会重写该文件。
+'The batch buttons only process the problems on the current page. Use the filter or paging to process more problems.': 批量操作只处理当前页面的题目，请配合筛选与翻页处理更多题目。
+'Manage': 管理
+'Testdata Status': 测试数据状态
+'Data Status': 数据状态
+'File Name': 文件名
+'Encoding': 编码
+'clean_testdata.status.normal': 正常
+'Problem Type': 题目评测类型
+'Check': 测试
+'Fix': 修改
+'Check All': 全部测试
+'Fix All': 全部修改
+'Check All on this page': 测试本页全部
+'Fix All on this page': 修改本页全部
+'Stop': 停止
+'Backup before modify': 修改前备份原文件
+'Backup': 备份
+'Download backup': 下载备份
+'Operation': 操作
+'Operation Log': 操作日志
+'Owner': 出题人
+'Testdata Count': 测试数据
+'Last Checked': 最近检查
+'Processing': 处理中
+'idle': 空闲
+'{0} testcase(s)': '{0} 个测试点'
+'clean_testdata.status.all': 全部
+'clean_testdata.status.accepted': 'Accepted'
+'clean_testdata.status.broken': 'Wrong'
+'clean_testdata.status.unchecked': 'Unchecked'
+'clean_testdata.status.empty': 'No testdata'
+'clean_testdata.issue.bom': BOM 头
+'clean_testdata.issue.crlf': CRLF
+'clean_testdata.issue.cr': CR
+'clean_testdata.issue.binary': 二进制文件（跳过）
+'clean_testdata.issue.utf16': 需人工处理（非 UTF-8 编码）
+'clean_testdata.scope': '批量操作范围：当前页 {0} 道题目（共 {1} 道题目、{2} 道匹配筛选）'
+'clean_testdata.truncated': '题目数量超过扫描上限 {0}，仅扫描了前 {0} 道题目，请使用筛选缩小范围。'
+'clean_testdata.scan.stat': '共 {0} 题：Accepted {1}，有问题 {2}，未检查 {3}，无数据 {4}'
+'clean_testdata.progress.check': '正在测试：第 {0}/{1} 个测试点 · 题目 {2}/{3} · {4} {5}'
+'clean_testdata.progress.fix': '正在修改：第 {0}/{1} 个测试点 · 题目 {2}/{3} · {4} {5}'
+'clean_testdata.progress.done': '已完成：{0} 道题目，{1} 个测试点'
+'clean_testdata.progress.stopped': '已停止：已处理 {0} 个测试点'
+'clean_testdata.log.checked': '{0} {1} 测试完成：{2}'
+'clean_testdata.log.ok': 正常
+'clean_testdata.nothing': 没有需要处理的测试点。
+'clean_testdata.confirm.fix': '将修改 {0} 个测试点，修改前会先备份原文件，是否继续？'
+'clean_testdata.log.changed': '已修改 {0} {1}（{2}），原文件已备份。'
+'clean_testdata.log.unchanged': '{0} {1} 无需修改。'
+'clean_testdata.log.binary': '{0} {1} 是二进制文件，已跳过。'
+'clean_testdata.log.utf16': '{0} {1} 不是 UTF-8 编码，请人工处理。'
+'clean_testdata.log.error': '{0} {1} 处理失败：{2}'
+'clean_testdata.summary.changed': '共修改 {0} 个测试点，{1} 个无需修改，{2} 个已跳过，{3} 个失败。'
+'clean_testdata.summary.checked': '共测试 {0} 个测试点，{1} 个有问题。'
+'Only domain root can access the Clean Testdata page.': 仅域 root 可以访问清洗测试数据页面。
+'Failed to read testdata file {0}. ({1})': '读取测试数据文件 {0} 失败。（{1}）'
+'Testdata file {0} was modified while processing, the operation was aborted.': 测试数据文件 {0} 在处理过程中被修改，操作已中止。
+'The normalized {0} is not a valid yaml file, the operation was aborted. ({1})': 规范化后的 {0} 不是合法的 YAML 文件，操作已中止。（{1}）
+'Failed to write testdata file {0}, the original file was restored from the backup. ({1})': 写入测试数据文件 {0} 失败，已从备份恢复原文件。（{1}）
+
+'clean_testdata.running.check': '正在测试 {0}/{1}'
+'clean_testdata.running.fix': '正在修改 {0}/{1}'
